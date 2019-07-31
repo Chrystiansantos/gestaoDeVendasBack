@@ -1,8 +1,15 @@
 module.exports = (app) => {
-    app.get('/usuario', (req, res) => {
-        res.send('retornar usuario')
+    //Aqui ele ira fazer a validaçao do usuario
+    app.post('/usuarioValido', (req, res) => {
+        app.app.controllers.usuarioControllers.autenticar(app, req, res)
     })
     app.post('/usuario', (req, res) => {
-        app.app.controllers.usuarioControllers.cadastrarUsuario(app, req, res)
+        (req.session.autorizado) ? app.app.controllers.usuarioControllers.cadastrarUsuario(app, req, res) : res.json({ msg: 'Usuario nao esta logado', logado: false });
+    })
+    app.get('/usuario', (req, res) => {
+        (req.session.autorizado) ? app.app.controllers.usuarioControllers.getUsuarios(app, req, res) : res.json({ msg: 'Usuario nao esta logado', logado: false })
+    })
+    app.delete('/usuario', (req, res) => {
+        (req.session.autorizado) ? app.app.controllers.usuarioControllers.deletarUsuario(app, req, res) : res.json({ msg: 'Usuario nao esta logado', logado: false });;
     })
 }

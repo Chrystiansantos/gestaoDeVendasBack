@@ -1,27 +1,83 @@
 const crypto = require('crypto');
+const objectId = require('mongodb').ObjectId;
 function UsuarioDao(connection) {
     this._connection = connection();
 }
-UsuarioDao.prototype.inserirUsuario = function (usuario, resp) {
-    this._connection.open(function (err, mongoClient) {
-        mongoClient.collection('usuarios', function (err, collection) {
-            var senhaCriptografada = crypto.createHash('md5').update(usuario.senha).digest('hex');
-            usuario.senha = senhaCriptografada;
-            var loginExistente = false;
-            collection.find().toArray(function (err, result, collection) {
-                for (var i = 0; i < result.length; i++) {
-                    (result[i].login == usuario.login) ? this.loginExistente = true : '';
-                }
-                if (loginExistente) {
-                    collection.insert(usuario)
-                    resp.json({ msg: 'Usuario inserido com sucesso !' })
-                } else {
-                    resp.json({ msg: "Usuario existente" })
-                }
+UsuarioDao.prototype.inserirUsuario = function (usuario) {
+    var promiseInserirUsuario = new Promise((resolve, reject) => {
+        this._connection.open(function (err, mongoClient) {
+            mongoClient.collection('usuarios', function (err, collection) {
+                var senhaCriptografada = crypto.createHash('md5').update(usuario.senha).digest('hex');
+                usuario.senha = senhaCriptografada;
+                var loginExistente = false;
+                collection.find().toArray(function (err, result) {
+                    for (var i = 0; i < result.length; i++) {
+                        if (result[i].login == usuario.login) { loginExistente = true }
+                    }
+                    if (loginExistente == true) {
+                        reject({ msg: 'Usuario existente', status: 'erro' })
+                    } else {
+                        collection.insert(usuario, (err, result) => {
+                            err ? reject({ erro: "Ocorreu um erro ao salvar", status: "erro" }) : resolve({ msg: "Usuario inserido com sucesso", status: "Ok" });
+                        });
+                    }
+                    mongoClient.close();
+                })
             })
         })
-        mongoClient.close();
     })
+    return promiseInserirUsuario;
+}
+UsuarioDao.prototype.autenticar = function (dadosUsuario, req) {
+    var promiseAutenticar = new Promise((resolve, reject) => {
+        this._connection.open((err, mongoClient) => {
+            dadosUsuario.senha = crypto.createHash('md5').update(dadosUsuario.senha).digest('hex');
+            mongoClient.collection('usuarios', (err, collection) => {
+                collection.find({ login: { $eq: dadosUsuario.login }, senha: { $eq: dadosUsuario.senha } }).toArray((err, result) => {
+                    if (err) {
+                        reject({ msg: "Ocorreu um erro", status: "erro" })
+                    } else {
+                        if (result) {
+                            if (result[0] != undefined) {
+                                req.session.autorizado = true;
+                                req.session.usuario = result[0].login;
+                                req.session.nome = result[0].nome;
+                                resolve({ msg: 'Usuario logado', logado: req.session.autorizado, status: "ok" })
+                            }
+                        }
+                    }
+                    (result.length < 1) ? reject({ msg: 'Usuarion invalido ou inexistente', status: 'erro' }) : ''
+                })
+            })
+        })
+    })
+    return promiseAutenticar;
+}
+UsuarioDao.prototype.deletarUsuario = function (dadosUsuario) {
+    var promiseDeletarUsuario = new Promise((reject, resolve) => {
+        this._connection.open(function (err, mongoClient) {
+            mongoClient.collection('usuarios', function (err, collection) {
+                collection.remove({ "_id": objectId(dadosUsuario.id) }, function (err, result) {
+                    (err) ? reject({ msg: "Falha ao deletar usuario", status: 'erro' }) : resolve({ msg: "Usuario deletado com sucesso !", status: "ok" });
+                })
+                mongoClient.close();
+            })
+        })
+    })
+    return promiseDeletarUsuario;
+}
+UsuarioDao.prototype.getUsuarios = function () {
+    var promiseGetUsuarios = new Promise((resolve, reject) => {
+        this._connection.open(function (err, mongoClient) {
+            mongoClient.collection('usuarios', function (err, collection) {
+                collection.find().toArray(function (err, result) {
+                    delete result[0].senha;
+                    (err) ? reject(err) : resolve(result);
+                })
+            })
+        })
+    })
+    return promiseGetUsuarios;
 }
 module.exports = () => {
     return UsuarioDao;

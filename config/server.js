@@ -7,12 +7,12 @@ const expressValidator = require('express-validator');
 const app = express();
 app.use(bodyParse.urlencoded({ extended: true }));
 app.use(expressValidator());
-/* app.use(expressSession(
-    {
-        secret: usuario,
-        resave: false,
-        saveUninitialized: false
-    })) */
+
+app.use(expressSession({
+    secret: "usuario",
+    resave: false,
+    saveUninitialized: false
+}))
 consign().include('app/routes')
     .then('app/models')
     .then('config/dbConnection.js')
