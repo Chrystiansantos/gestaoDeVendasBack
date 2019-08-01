@@ -79,6 +79,25 @@ UsuarioDao.prototype.getUsuarios = function () {
     })
     return promiseGetUsuarios;
 }
+UsuarioDao.prototype.updateUsuario = function (dadosUsuario) {
+    var promiseUpdate = new Promise((resolve, reject) => {
+        this._connection.open(function (err, mongoClient) {
+            mongoClient.collection('usuarios', (err, collection) => {
+                collection.update({ _id: objectId(dadosUsuario.id) }, {
+                    $set: {
+                        nome: dadosUsuario.nome,
+                        cpf: dadosUsuario.cpf,
+                        login: dadosUsuario.login,
+                        telefone: dadosUsuario.telefone
+                    }
+                }, (err, result) => {
+                    (err == null) ? resolve({ msg: "Usuario alterado com sucesso !", status: "ok" }) : reject(err)
+                })
+            })
+        })
+    })
+    return promiseUpdate;
+}
 module.exports = () => {
     return UsuarioDao;
 }

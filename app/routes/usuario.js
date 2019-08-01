@@ -10,6 +10,9 @@ module.exports = (app) => {
         (req.session.autorizado) ? app.app.controllers.usuarioControllers.getUsuarios(app, req, res) : res.json({ msg: 'Usuario nao esta logado', logado: false })
     })
     app.delete('/usuario', (req, res) => {
-        (req.session.autorizado) ? app.app.controllers.usuarioControllers.deletarUsuario(app, req, res) : res.json({ msg: 'Usuario nao esta logado', logado: false });;
+        (req.session.autorizado) ? app.app.controllers.usuarioControllers.deletarUsuario(app, req, res) : res.json({ msg: 'Usuario nao esta logado', logado: false });
+    })
+    app.put('/usuario', (req, res) => {
+        (req.session.autorizado) ? app.app.controllers.usuarioControllers.updateUsuario(app, req, res) : res.json({ msg: 'Usuario nao esta logado', logado: false });
     })
 }

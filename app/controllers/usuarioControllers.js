@@ -20,7 +20,6 @@ module.exports.cadastrarUsuario = (app, req, res) => {
 
     if (erros.length > 0) {
         res.json({ erros: erros });
-        return;
     } else {
         var connection = app.config.dbConnection;
         var usuarioDao = new app.app.models.usuarioDAO(connection);
@@ -41,8 +40,8 @@ module.exports.autenticar = (app, req, res) => {
         res.json(erros)
     } else {
         var connection = app.config.dbConnection;
-        var usuarioDAO = new app.app.models.usuarioDAO(connection);
-        var usuarioAutenticado = usuarioDAO.autenticar(dadosUsuario, req, res)
+        var usuarioDao = new app.app.models.usuarioDAO(connection);
+        var usuarioAutenticado = usuarioDao.autenticar(dadosUsuario, req, res)
         usuarioAutenticado.then((result) => {
             res.json(result)
         }).catch((err) => {
@@ -58,15 +57,37 @@ module.exports.deletarUsuario = (app, req, res) => {
         res.json({ erro: erros })
     } else {
         var connection = app.config.dbConnection;
-        var usuarioDAO = new app.app.models.usuarioDAO(connection);
-        var usuarioDeletar = usuarioDAO.deletarUsuario(dadosUsuario);
+        var usuarioDao = new app.app.models.usuarioDAO(connection);
+        var usuarioDeletar = usuarioDao.deletarUsuario(dadosUsuario);
         usuarioDeletar.then((result) => { res.json(result) }).catch(err => { res.json(err) })
     }
-
 }
 module.exports.getUsuarios = (app, req, res) => {
     var connection = app.config.dbConnection;
-    var usuarioDAO = new app.app.models.usuarioDAO(connection);
-    var usuarios = usuarioDAO.getUsuarios();
+    var usuarioDao = new app.app.models.usuarioDAO(connection);
+    var usuarios = usuarioDao.getUsuarios();
     usuarios.then(result => { res.json(result) }).catch(err => { res.json() })
+}
+module.exports.updateUsuario = (app, req, res) => {
+    var dadosUsuario = req.body;
+    req.assert('id', 'Id nao pode ser nulo').notEmpty();
+    req.assert('login', 'Login nao pode ser vazio e deve conter acima de 5 caracters').notEmpty().isLength({ min: 5 });
+    req.assert('cpf', 'Cpf nao pode ser vazio e deve conter 11 caracters sendo apenas numeros').notEmpty().isLength({ min: 11 }).isNumeric();
+    req.assert('nome', 'Nome deve conter mais de 3 digitos e nao pode ser vazio').notEmpty().isLength({ min: 3 });
+    req.assert('telefone', "Telefone deve conter 11 digitos e nao pode ser nulo").notEmpty().isLength({ min: 11, max: 11 }).isNumeric();
+    var erros = [];
+    if (!validadorCpf.validarCpf(dadosUsuario.cpf)) {
+        erros.push({ msg: "Por favor, informe um cpf valido !", value: dadosUsuario.cpf });
+    }
+    if (erros) {
+        req.validationErrors() ? erros = erros.concat(req.validationErrors()) : '';
+    }
+    if (erros.length > 0) {
+        res.json({ erros: erros })
+    } else {
+        var connection = app.config.dbConnection;
+        var usuarioDao = new app.app.models.usuarioDAO(connection);
+        var usuarioDao = usuarioDao.updateUsuario(dadosUsuario);
+        usuarioDao.then((result) => { res.json(result) }).catch(err => { res.json(err) });
+    }
 }
