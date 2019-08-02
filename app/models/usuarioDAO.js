@@ -48,17 +48,18 @@ UsuarioDao.prototype.autenticar = function (dadosUsuario, req) {
                     }
                     (result.length < 1) ? reject({ msg: 'Usuarion invalido ou inexistente', status: 'erro' }) : ''
                 })
+                mongoClient.close();
             })
         })
     })
     return promiseAutenticar;
 }
 UsuarioDao.prototype.deletarUsuario = function (dadosUsuario) {
-    var promiseDeletarUsuario = new Promise((reject, resolve) => {
+    var promiseDeletarUsuario = new Promise((resolve, reject) => {
         this._connection.open(function (err, mongoClient) {
             mongoClient.collection('usuarios', function (err, collection) {
-                collection.remove({ "_id": objectId(dadosUsuario.id) }, function (err, result) {
-                    (err) ? reject({ msg: "Falha ao deletar usuario", status: 'erro' }) : resolve({ msg: "Usuario deletado com sucesso !", status: "ok" });
+                collection.remove({ _id: objectId(dadosUsuario.id) }, function (err, result) {
+                    (err != null) ? reject({ msg: "Falha ao deletar usuario", status: 'erro' }) : resolve({ msg: "Usuario deletado com sucesso !", status: "ok" });
                 })
                 mongoClient.close();
             })
@@ -71,10 +72,13 @@ UsuarioDao.prototype.getUsuarios = function () {
         this._connection.open(function (err, mongoClient) {
             mongoClient.collection('usuarios', function (err, collection) {
                 collection.find().toArray(function (err, result) {
-                    delete result[0].senha;
-                    (err) ? reject(err) : resolve(result);
+                    for (var i = 0; i < result.length; i++) {
+                        delete result[i].senha;
+                    }
+                    (err == null) ? resolve(result) : reject(err);
                 })
             })
+            mongoClient.close();
         })
     })
     return promiseGetUsuarios;
@@ -94,6 +98,7 @@ UsuarioDao.prototype.updateUsuario = function (dadosUsuario) {
                     (err == null) ? resolve({ msg: "Usuario alterado com sucesso !", status: "ok" }) : reject(err)
                 })
             })
+            mongoClient.close();
         })
     })
     return promiseUpdate;

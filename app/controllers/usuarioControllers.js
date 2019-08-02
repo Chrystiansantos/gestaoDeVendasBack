@@ -23,7 +23,7 @@ module.exports.cadastrarUsuario = (app, req, res) => {
     } else {
         var connection = app.config.dbConnection;
         var usuarioDao = new app.app.models.usuarioDAO(connection);
-        var usuarioCadastrado = usuarioDao.inserirUsuario(dadosUsuario, res);
+        var usuarioCadastrado = usuarioDao.inserirUsuario(dadosUsuario);
         usuarioCadastrado.then((result) => {
             res.json(result);
         }).catch(err => { res.json(err) })
@@ -41,7 +41,7 @@ module.exports.autenticar = (app, req, res) => {
     } else {
         var connection = app.config.dbConnection;
         var usuarioDao = new app.app.models.usuarioDAO(connection);
-        var usuarioAutenticado = usuarioDao.autenticar(dadosUsuario, req, res)
+        var usuarioAutenticado = usuarioDao.autenticar(dadosUsuario, req)
         usuarioAutenticado.then((result) => {
             res.json(result)
         }).catch((err) => {

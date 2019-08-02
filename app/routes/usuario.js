@@ -1,6 +1,6 @@
 module.exports = (app) => {
     //Aqui ele ira fazer a validaçao do usuario
-    app.post('/usuarioValido', (req, res) => {
+    app.get('/usuarioValido', (req, res) => {
         app.app.controllers.usuarioControllers.autenticar(app, req, res)
     })
     app.post('/usuario', (req, res) => {
