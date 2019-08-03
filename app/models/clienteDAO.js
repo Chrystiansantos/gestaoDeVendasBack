@@ -1,5 +1,5 @@
 const objectId = require('mongodb').ObjectId;
-class Cliente {
+class ClienteDao {
     constructor(connection) {
         this.connection = connection();
     }
@@ -41,7 +41,30 @@ class Cliente {
         })
         return promiseDeletarUsuario;
     }
+    atualizarCliente(dadosCliente) {
+        var promiseAtualizarCliente = new Promise((resolve, reject) => {
+            this.connection.open(function (err, mongoClient) {
+                mongoClient.collection('clientes', (err, collection) => {
+                    collection.update({ _id: objectId(dadosCliente.id) }, {
+                        $set: {
+                            nome: dadosCliente.nome,
+                            telefone: dadosCliente.telefone,
+                            sexo: dadosCliente.sexo,
+                            numero: dadosCliente.numero,
+                            cidade: dadosCliente.cidade,
+                            estado: dadosCliente.estado,
+                            cep: dadosCliente.cep
+                        }
+                    }, (err, result) => {
+                        (err == null) ? resolve({ msg: "Usuario alterado com sucesso !", status: "Ok" }) : reject(err);
+                    })
+                    mongoClient.close();
+                })
+            })
+        })
+        return promiseAtualizarCliente;
+    }
 }
 module.exports = () => {
-    return Cliente;
+    return ClienteDao;
 } 
