@@ -3,9 +3,14 @@ const consign = require('consign');
 const bodyParse = require('body-parser');
 const expressSession = require('express-session');
 const expressValidator = require('express-validator');
+const multiParty = require('connect-multiparty');
 
 const app = express();
 app.use(bodyParse.urlencoded({ extended: true }));
+app.use(bodyParse.json());
+
+app.use(multiParty());
+
 app.use(expressValidator());
 
 app.use(expressSession({

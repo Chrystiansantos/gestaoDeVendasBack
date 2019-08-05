@@ -1,17 +1,30 @@
 const objectId = require('mongodb').ObjectId;
+const fs = require('fs');
 class ClienteDao {
     constructor(connection) {
         this.connection = connection();
     }
-    cadastrarCliente(dadosCliente) {
+    cadastrarCliente(dadosCliente, pathImagem) {
         var promiseCadastrarCliente = new Promise((resolve, reject) => {
-            this.connection.open(function (err, mongoClient) {
-                mongoClient.collection('clientes', (err, collection) => {
-                    collection.insert(dadosCliente, (err, result) => {
-                        (err != null) ? reject(err) : resolve({ msg: 'Cliente inserido com sucesso !', status: "Ok" });
+            let date = new Date();
+            let time_Stamp = date.getTime();
+            let urlImagen = dadosCliente.nome + '_' + time_Stamp;
+            let path_origem = pathImagem;
+            let path_destino = './app/imagem_clientes/' + urlImagen;
+            fs.rename(path_origem, path_destino, (err) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    dadosCliente.urlImagen = urlImagen;
+                    this.connection.open(function (err, mongoClient) {
+                        mongoClient.collection('clientes', (err, collection) => {
+                            collection.insert(dadosCliente, (err, result) => {
+                                (err != null) ? reject(err) : resolve({ msg: 'Cliente inserido com sucesso !', status: "Ok" });
+                            })
+                        })
+                        mongoClient.close();
                     })
-                })
-                mongoClient.close();
+                }
             })
         })
         return promiseCadastrarCliente;

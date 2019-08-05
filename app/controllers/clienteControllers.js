@@ -28,9 +28,10 @@ class clienteController {
         if (erros.length > 0) {
             res.json(erros);
         } else {
+            let endereçoDaImagem = req.files.img.path;
             var connection = app.config.dbConnection;
             var clienteDao = new app.app.models.clienteDAO(connection);
-            var clienteCadastrado = clienteDao.cadastrarCliente(dadosCliente);
+            var clienteCadastrado = clienteDao.cadastrarCliente(dadosCliente, endereçoDaImagem);
             clienteCadastrado.then(result => { res.json(result) }).catch(err => { res.json(err) })
         }
     }
