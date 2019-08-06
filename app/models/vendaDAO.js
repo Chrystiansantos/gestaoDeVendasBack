@@ -56,7 +56,7 @@ class VendaDao {
                             })
                         }
                     })
-                    mongoCliente.close();
+                    //mongoCliente.close();
                 })
             })
         })
@@ -73,23 +73,14 @@ class VendaDao {
                                 pagamento: { _id: objectId(dadosCompra.idCompra) }
                             }
                         }, (err, result) => {
-                            (err != null) ? reject(err) : resolve({ msg: 'Compra deletada sucesso !', status: 'ok' })
+                            (err != null) ? reject(err) : resolve({ msg: 'Venda deletada sucesso !', status: 'ok' })
                         })
                     mongoCliente.close();
                 })
             })
         })
-    }    /*                      collection.update({
-                        _id: objectId(dadosPagamento.idCliente)
-                    }, {
-                            $pull: { pagamento: { _id: objectId(dadosPagamento.idPagamento) } }
-                        }, (err, result) => {
-                            (err != null) ? reject(err) : resolve({ msg: 'Pagamento deletado com sucesso !', status: 'ok' })
-                        });
-                    mongoCliente.close();
-                })
-            })
-        })*/
+        return promiseDeletarVenda;
+    }
 }
 module.exports = () => {
     return VendaDao;

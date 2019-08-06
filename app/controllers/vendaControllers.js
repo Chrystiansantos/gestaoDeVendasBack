@@ -16,11 +16,19 @@ class vendaController {
             vendaCadastrada.then(result => { res.json(result) }).catch(err => { res.json(err) })
         }
     }
-    alterarVenda() {
-
-    }
-    deletarVenda() {
-
+    deletarVenda(app, req, res) {
+        var dadosVenda = req.body;
+        req.assert('idCliente', 'Informe o id do cliente').notEmpty();
+        req.assert('idVenda', 'Informe o id da venda').notEmpty();
+        var erros = req.validationErrors();
+        if (erros) {
+            res.json(erros);
+        } else {
+            var connection = app.config.dbConnection;
+            var vendaDao = new app.app.models.vendaDAO(connection);
+            var vendaDeletada = vendaDao.deletarVenda(dadosVenda);
+            vendaDeletada.then(result => { res.json(result) }).catch(err => { res.json(err) })
+        }
     }
 }
 module.exports = () => {
