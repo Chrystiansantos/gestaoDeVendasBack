@@ -8,7 +8,7 @@ class vendaController {
         req.assert('qtd', 'Informe a quantidade do produto').notEmpty();
         var erros = req.validationErrors();
         if (erros) {
-            res.json(msg)
+            res.json(erros)
         } else {
             var connection = app.config.dbConnection;
             var vendaDao = new app.app.models.vendaDAO(connection);
@@ -16,16 +16,12 @@ class vendaController {
             vendaCadastrada.then(result => { res.json(result) }).catch(err => { res.json(err) })
         }
     }
-    retornarVenda(app, req, res) {
-        res.send('venda get')
-    }
     alterarVenda() {
 
     }
     deletarVenda() {
 
     }
-
 }
 module.exports = () => {
     return new vendaController;

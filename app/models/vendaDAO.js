@@ -25,6 +25,7 @@ class VendaDao {
                                             }, {
                                                     $push: {
                                                         compras: {
+                                                            _id: new objectId(),
                                                             qtd: parseInt(dadosCompra.qtd),
                                                             marca: produto[0].marca,
                                                             modelo: produto[0].modelo,
@@ -55,13 +56,40 @@ class VendaDao {
                             })
                         }
                     })
+                    mongoCliente.close();
                 })
-                //mongoCliente.close();
             })
         })
         return promiseCadastrarVenda;
     }
-
+    deletarVenda(dadosCompra) {
+        var promiseDeletarVenda = new Promise((resolve, reject) => {
+            this.connection.open(function (err, mongoCliente) {
+                mongoCliente.collection('clientes', (err, collection) => {
+                    collection.update({
+                        _id: objectId(dadosCompra.idCliente)
+                    }, {
+                            $pull: {
+                                pagamento: { _id: objectId(dadosCompra.idCompra) }
+                            }
+                        }, (err, result) => {
+                            (err != null) ? reject(err) : resolve({ msg: 'Compra deletada sucesso !', status: 'ok' })
+                        })
+                    mongoCliente.close();
+                })
+            })
+        })
+    }    /*                      collection.update({
+                        _id: objectId(dadosPagamento.idCliente)
+                    }, {
+                            $pull: { pagamento: { _id: objectId(dadosPagamento.idPagamento) } }
+                        }, (err, result) => {
+                            (err != null) ? reject(err) : resolve({ msg: 'Pagamento deletado com sucesso !', status: 'ok' })
+                        });
+                    mongoCliente.close();
+                })
+            })
+        })*/
 }
 module.exports = () => {
     return VendaDao;

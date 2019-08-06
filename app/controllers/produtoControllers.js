@@ -24,7 +24,7 @@ class produtoController {
             })
         }
     }
-    retornaProdutos(app, req, res) {
+    retornarProdutos(app, req, res) {
         var connection = app.config.dbConnection;
         var produtosDao = new app.app.models.produtoDAO(connection);
         var getProdutos = produtosDao.getProdutos();
