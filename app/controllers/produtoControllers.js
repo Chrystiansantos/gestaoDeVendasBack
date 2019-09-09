@@ -10,7 +10,7 @@ class produtoController {
         req.assert('preco', 'Preço deve ser preenchido').notEmpty();
         req.assert('descricao', "Descriçao deve ser preenchida").notEmpty();
 
-        erros = req.validationErrors();
+        var erros = req.validationErrors();
         if (erros) {
             res.json({ erros: erros })
         } else {

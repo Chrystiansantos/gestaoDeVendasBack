@@ -1,30 +1,17 @@
 const objectId = require('mongodb').ObjectId;
-const fs = require('fs');
 class ClienteDao {
     constructor(connection) {
         this.connection = connection();
     }
-    cadastrarCliente(dadosCliente, pathImagem) {
+    cadastrarCliente(dadosCliente) {
         var promiseCadastrarCliente = new Promise((resolve, reject) => {
-            let date = new Date();
-            let time_Stamp = date.getTime();
-            let urlImagen = dadosCliente.nome + '_' + time_Stamp;
-            let path_origem = pathImagem;
-            let path_destino = './app/imagem_clientes/' + urlImagen;
-            fs.rename(path_origem, path_destino, (err) => {
-                if (err) {
-                    reject(err)
-                } else {
-                    dadosCliente.urlImagen = urlImagen;
-                    this.connection.open(function (err, mongoClient) {
-                        mongoClient.collection('clientes', (err, collection) => {
-                            collection.insert(dadosCliente, (err, result) => {
-                                (err != null) ? reject(err) : resolve({ msg: 'Cliente inserido com sucesso !', status: "Ok" });
-                            })
-                        })
-                        mongoClient.close();
+            this.connection.open(function (err, mongoClient) {
+                mongoClient.collection('clientes', (err, collection) => {
+                    collection.insert(dadosCliente, (err, result) => {
+                        (err != null) ? reject(err) : resolve({ msg: 'Cliente inserido com sucesso !', status: "Ok" });
                     })
-                }
+                })
+                mongoClient.close();
             })
         })
         return promiseCadastrarCliente;
@@ -41,11 +28,11 @@ class ClienteDao {
         })
         return promiseGetClientes;
     }
-    deletarCliente(dadosCliente) {
+    deletarCliente(IdDeletar) {
         var promiseDeletarUsuario = new Promise((resolve, reject) => {
             this.connection.open(function (err, mongoClient) {
                 mongoClient.collection('clientes', (err, collection) => {
-                    collection.remove({ _id: objectId(dadosCliente) }, (err, result) => {
+                    collection.remove({ _id: objectId(IdDeletar) }, (err, result) => {
                         (err != null) ? reject(err) : resolve({ msg: "Usuario deletado com sucesso !", status: "ok" })
                     })
                     mongoClient.close()
@@ -66,7 +53,8 @@ class ClienteDao {
                             numero: dadosCliente.numero,
                             cidade: dadosCliente.cidade,
                             estado: dadosCliente.estado,
-                            cep: dadosCliente.cep
+                            cep: dadosCliente.cep,
+                            endereco:dadosCliente.rua
                         }
                     }, (err, result) => {
                         (err == null) ? resolve({ msg: "Usuario alterado com sucesso !", status: "Ok" }) : reject(err);

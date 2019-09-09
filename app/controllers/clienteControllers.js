@@ -17,7 +17,8 @@ class clienteController {
         req.assert('cidade', 'Cidade deve conter acima de 3 digitos').isLength({ min: 3 });
         req.assert('estado', 'Por favor verifique o estado').notEmpty()
         req.assert('cep', 'Por favor verifique o Cep').notEmpty().isLength({ min: 8, max: 8 })
-        req.assert('cep', 'Cep deve conter 8 digitos').isLength({ min: 8, max: 8 })
+        req.assert('cep', 'Cep deve conter 8 digitos').isLength({ min: 8, max: 8 });
+        req.assert('endereco', 'Por favor informe o endereço').notEmpty();
         var erros = [];
         if (!validarCpf.validarCpf(dadosCliente.cpf)) {
             erros.push({ msg: "Por favor, informe um cpf valido !", value: req.body.cpf });
@@ -28,10 +29,9 @@ class clienteController {
         if (erros.length > 0) {
             res.json(erros);
         } else {
-            let endereçoDaImagem = req.files.img.path;
             var connection = app.config.dbConnection;
             var clienteDao = new app.app.models.clienteDAO(connection);
-            var clienteCadastrado = clienteDao.cadastrarCliente(dadosCliente, endereçoDaImagem);
+            var clienteCadastrado = clienteDao.cadastrarCliente(dadosCliente);
             clienteCadastrado.then(result => { res.json(result) }).catch(err => { res.json(err) })
         }
     }

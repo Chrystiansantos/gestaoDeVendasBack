@@ -4,6 +4,7 @@ module.exports = (app) => {
         app.app.controllers.vendaControllers.cadastrarVenda(app, req, res)
     });
     app.delete('/venda', (req, res) => {
-        req.session.autorizado ? app.app.controllers.vendaControllers.deletarVenda(app, req, res) : res.json({ msg: 'Usuario nao esta logado', logado: false });
+        //req.session.autorizado ? app.app.controllers.vendaControllers.deletarVenda(app, req, res) : res.json({ msg: 'Usuario nao esta logado', logado: false });
+        app.app.controllers.vendaControllers.deletarVenda(app, req, res)
     });
 } 

@@ -23,7 +23,7 @@ app.use(expressValidator());
 
 app.use(expressSession({
     secret: "usuario",
-    resave: false,
+    resave: true,
     saveUninitialized: false
 }))
 consign().include('app/routes')
